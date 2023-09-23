@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace MONEY {
 
@@ -18,16 +19,19 @@ class Money {
   mUnit money_[curr_size];
   int kopecks;
 
-  double kop_to_rub() const { return kopecks * 0.01; }
+  double kop_to_rub() const;
+
+  void setCurr(const int&);
+  void setCurr(const std::vector<int>&);
+  void setKope(const int&);
 
  public:
-  Money() : kopecks(0) {
-    for (int i = 0; i < curr_size; ++i) {
-      money_[i].curr = currency[i];
-      money_[i].amount = 0;
-    }
-  }
+  Money();
+  Money(const std::vector<int>&, const int&);
+  std::vector<int> getCurr(const int&) const;
+  int getKope() const;
 
+  Money& operator=(const Money&);
   friend std::ostream& operator<<(std::ostream&, const Money&);
 };
 }  // namespace MONEY

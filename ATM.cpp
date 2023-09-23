@@ -5,5 +5,6 @@
 
 int main() {
   MONEY::Money Test;
-  std::cout << Test;
+  MONEY::Money Tset = Test;
+  std::cout << Test << "  " << Tset;
 }
