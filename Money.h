@@ -1,4 +1,6 @@
 #pragma once
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,9 +20,13 @@ class Money {
  private:
   mUnit money_[curr_size];
   int kopecks;
+  double value;
 
   double kop_to_rub() const;
+  void calc_value();
+  void value_to_curr();
 
+  // set
   void setCurr(const int&);
   void setCurr(const std::vector<int>&);
   void setKope(const int&);
@@ -28,10 +34,22 @@ class Money {
  public:
   Money();
   Money(const std::vector<int>&, const int&);
-  std::vector<int> getCurr(const int&) const;
+
+  // get
+  int getCurr(const int&) const;
   int getKope() const;
+  double getValue() const;
+  std::vector<int> getDenoms() const;
 
   Money& operator=(const Money&);
+  Money operator+(const Money&);
+  Money operator-(const Money&);
+  Money operator/(const Money&);
+  Money operator/(const double&);
+  Money operator*(const double&);
+  friend Money operator/(const double&, const Money&);
+  friend Money operator*(const double&, const Money&);
+
   friend std::ostream& operator<<(std::ostream&, const Money&);
 };
 }  // namespace MONEY
