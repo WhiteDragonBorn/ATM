@@ -1,26 +1,45 @@
+#include "Atm.h"
 
-#include <iostream>
+ATM::Atm::Atm() : available() {
+  ID = -1;
+  min_sum = 0;
+  max_sum = 0;
+}
 
-#include "Money.h"
+ATM::Atm::Atm(const MONEY::Money& obj, int id_) : available(obj) {
+  ID = id_;
+  min_sum = 0.0;
+  max_sum = obj.getValue();
+}
 
-using std::cout;
-using std::endl;
+ATM::Atm::Atm(const Atm& other) : available(other.available) {
+  ID = other.ID;
+  min_sum = other.min_sum;
+  max_sum = other.max_sum;
+}
 
+ATM::Atm& ATM::Atm::operator=(const Atm& other) {
+  available = other.available;
+  ID = other.ID;
+  min_sum = other.min_sum;
+  max_sum = other.max_sum;
+  return *this;
+}
 
-int main() {
-  std::vector<int> vec{0, 0, 0, 0, 0, 0, 0, 0, 0};
-  MONEY::Money Test(vec, 2438);
-  MONEY::Money Tset(vec, 1000);
-  std::cout << std::setprecision(15) << Test << " " << Tset << std::endl;
+void ATM::Atm::insertMoney(const MONEY::Money& other) {
+  available = available + other;
+  max_sum += other.getValue();
+}
 
-
-  MONEY::Money NE = Tset + Test;
-  std::cout << NE;
-  std::vector<int> vecc = (NE).getDenoms();
-  cout << endl;
-  for (auto& elem : vecc) {
-    std::cout << elem << " ";
+void ATM::Atm::retrieveMoney(const MONEY::Money& other) {
+  if (other.getValue() >= min_sum && other.getValue() <= max_sum) {
+    available = available - other;
+    max_sum -= other.getValue();
   }
-  cout << (NE).getKope();
-  //std::cout << Test.getCurr(5000) << "  " << Tset.getCurr(1);
+}
+
+std::ostream& ATM::operator<<(std::ostream& os, const Atm& atm) {
+  os << "ID: " << atm.ID << " Available sum: " << atm.available.getValue()
+     << std::endl;
+  return os;
 }

@@ -1,36 +1,20 @@
 #include "Money.h"
 
-inline double MONEY::Money::kop_to_rub() const { return kopecks * 0.01; }
-
 void MONEY::Money::calc_value() {
-  value = this->kop_to_rub();
   for (int i = 0; i < curr_size; ++i) {
     value += money_[i].curr * money_[i].amount;
   }
 }
 
-void MONEY::Money::value_to_curr() {
-  money_[0].amount = std::trunc(value);
-  for (int i = 1; i < curr_size; ++i) {
-    if(money_[i - 1].amount / money_[i].curr < 1) break;
-    money_[i].amount = money_[i - 1].amount / money_[i].curr;
-    money_[i - 1].amount = money_[i - 1].amount % money_[i].curr;
-  }
-}
-
-// void MONEY::Money::setCurr(const int&) {}
-// void MONEY::Money::setCurr(const std::vector<int>&) {}
-// void MONEY::Money::setKope(const int&) {}
-
-MONEY::Money::Money() : kopecks(0), value(0.0) {
+void MONEY::Money::setCurr(const double& denom, const int& amount) {
   for (int i = 0; i < curr_size; ++i) {
-    money_[i].curr = currency[i];
-    money_[i].amount = 0;
+    if (denom == money_[i].curr) {
+      money_[i].amount = amount;
+      break;
+    }
   }
 }
-
-MONEY::Money::Money(const std::vector<int>& vec, const int& kope)
-    : kopecks(kope) {
+void MONEY::Money::setCurr(const std::vector<int>& vec) {
   if (vec.size() != curr_size) {
     throw("Bad size");
   }
@@ -40,10 +24,41 @@ MONEY::Money::Money(const std::vector<int>& vec, const int& kope)
     money_[i].curr = currency[i];
   }
 
-  this->calc_value();
+  calc_value();
 }
 
-int MONEY::Money::getCurr(const int& denom) const {
+MONEY::Money::Money() {
+  value = 0.0;
+  for (int i = 0; i < curr_size; ++i) {
+    money_[i].curr = currency[i];
+    money_[i].amount = 0;
+  }
+}
+
+MONEY::Money::Money(const Money& other) {
+  value = other.value;
+
+  for (int i = 0; i < curr_size; ++i) {
+    money_[i].amount = other.money_[i].amount;
+    money_[i].curr = other.money_[i].curr;
+  }
+}
+
+MONEY::Money::Money(const std::vector<int>& vec) {
+  value = 0.0;
+  if (vec.size() != curr_size) {
+    throw("Bad size");
+  }
+
+  for (int i = 0; i < curr_size; ++i) {
+    money_[i].amount = vec[i];
+    money_[i].curr = currency[i];
+  }
+
+  calc_value();
+}
+
+int MONEY::Money::getCurr(const double& denom) const {
   int toReturn = 0;
   bool flag = false;
   for (int i = 0; i < curr_size; ++i) {
@@ -57,12 +72,10 @@ int MONEY::Money::getCurr(const int& denom) const {
   return toReturn;
 }
 
-int MONEY::Money::getKope() const { return kopecks; }
-
-inline double MONEY::Money::getValue() const { return value; }
+double MONEY::Money::getValue() const { return value; }
 
 std::vector<int> MONEY::Money::getDenoms() const {
-  std::vector<int> toReturn(9, 0);
+  std::vector<int> toReturn(curr_size, 0);
   for (int i = 0; i < curr_size; ++i) {
     toReturn[i] = money_[i].amount;
   }
@@ -70,34 +83,93 @@ std::vector<int> MONEY::Money::getDenoms() const {
 }
 
 MONEY::Money& MONEY::Money::operator=(const Money& other) {
-  this->kopecks = other.kopecks;
+  value = other.value;
+
   for (int i = 0; i < curr_size; ++i) {
-    this->money_[i].curr = currency[i];
-    this->money_[i].amount = other.money_[i].amount;
+    money_[i].amount = other.money_[i].amount;
   }
   return *this;
 }
 
 MONEY::Money MONEY::Money::operator+(const Money& other) {
   Money toReturn;
-  toReturn.kopecks = this->kopecks + other.kopecks;
-  toReturn.value = this->value + other.value;
-  toReturn.value_to_curr();
+  toReturn.value = value + other.value;
+
+  for (int i = 0; i < curr_size; ++i) {
+    toReturn.money_[i].amount = money_[i].amount + other.money_[i].amount;
+  }
+
   return toReturn;
 }
 
 MONEY::Money MONEY::Money::operator-(const Money& other) {
-  if (this->value < other.value) {
-    throw("Not enough money.");
-  }
   Money toReturn;
-  toReturn.value = this->value - other.value;
-  toReturn.kopecks = (this->value - other.value - std::trunc(this->value - other.value) )*100;
-  toReturn.value_to_curr();
+
+  for (int i = curr_size - 1; i >= 0; --i) {
+    int temp = money_[i].amount - other.money_[i].amount;
+    // std::cout << temp << "---";
+    if (temp < 0) {
+      throw("Not enough currency.");
+    } else {
+      toReturn.money_[i].amount = temp;
+    }
+  }
+  toReturn.calc_value();
+  return toReturn;
+}
+
+double MONEY::Money::operator/(const Money& other) {
+  return double(value / other.value);
+}
+double MONEY::Money::operator/(const double& number) {
+  return double(value / number);
+}
+
+MONEY::Money MONEY::Money::operator*(const int& number) {
+  Money toReturn;
+  if (number < 0) {
+    throw("exception.");
+  }
+
+  for (int i = 0; i < curr_size; ++i) {
+    toReturn.money_[i].amount = money_[i].amount * number;
+  }
+  toReturn.calc_value();
+
+  return toReturn;
+}
+
+MONEY::Money MONEY::operator*(const int& number, const MONEY::Money& obj) {
+  Money toReturn;
+  if (number < 0) {
+    throw("exception.");
+  }
+
+  for (int i = 0; i < curr_size; ++i) {
+    toReturn.money_[i].amount = obj.money_[i].amount * number;
+  }
+  toReturn.calc_value();
+
   return toReturn;
 }
 
 std::ostream& MONEY::operator<<(std::ostream& os, const MONEY::Money& obj) {
   os << obj.value;
   return os;
+}
+
+bool MONEY::Money::operator>(const Money& other) {
+  return (value > other.value);
+}
+
+bool MONEY::Money::operator<(const Money& other) {
+  return (other.value > value);
+}
+
+bool MONEY::Money::operator>=(const Money& other) {
+  return !(value < other.value);
+}
+
+bool MONEY::Money::operator<=(const Money& other) {
+  return !(value > other.value);
 }

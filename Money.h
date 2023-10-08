@@ -7,49 +7,53 @@
 
 namespace MONEY {
 
-const int curr_size = 9;
+const int curr_size = 13;
 
-const int currency[curr_size] = {1, 2, 5, 10, 50, 100, 500, 1000, 5000};
+const double currency[curr_size] = {0.01, 0.05, 0.1, 0.5, 1,    2,   5,
+                                    10,   50,   100, 500, 1000, 5000};
 
 struct mUnit {
-  int curr;
+  double curr;
   int amount;
 };
 
 class Money {
  private:
   mUnit money_[curr_size];
-  int kopecks;
   double value;
 
-  double kop_to_rub() const;
   void calc_value();
-  void value_to_curr();
 
   // set
-  void setCurr(const int&);
+  void setCurr(const double&, const int&);
   void setCurr(const std::vector<int>&);
-  void setKope(const int&);
 
  public:
   Money();
-  Money(const std::vector<int>&, const int&);
+  Money(const Money&);
+  Money(const std::vector<int>&);
 
   // get
-  int getCurr(const int&) const;
-  int getKope() const;
+  int getCurr(const double&) const;
   double getValue() const;
   std::vector<int> getDenoms() const;
 
   Money& operator=(const Money&);
+
   Money operator+(const Money&);
   Money operator-(const Money&);
-  Money operator/(const Money&);
-  Money operator/(const double&);
-  Money operator*(const double&);
-  friend Money operator/(const double&, const Money&);
-  friend Money operator*(const double&, const Money&);
+
+  double operator/(const Money&);
+  double operator/(const double&);
+
+  Money operator*(const int&);
+  friend Money operator*(const int&, const Money&);
 
   friend std::ostream& operator<<(std::ostream&, const Money&);
+
+  bool operator>(const Money&);
+  bool operator<(const Money&);
+  bool operator>=(const Money&);
+  bool operator<=(const Money&);
 };
 }  // namespace MONEY

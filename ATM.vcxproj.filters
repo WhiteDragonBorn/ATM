@@ -15,15 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ATM.cpp">
+    <ClCompile Include="source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Money.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Atm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Money.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Atm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
